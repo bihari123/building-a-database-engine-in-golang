@@ -6,14 +6,18 @@ import (
 	"os"
 	"strings"
 )
-const(
-  SUCCESS = 0
+
+const (
+	SUCCESS = 0
+	FAILURE = 1
 )
+
 func PrintPrompt() {
 	fmt.Print("db > ")
 }
 
-func ReadInput() {
+// in our case, reader = os.Stdin
+func ReadInput(reader *bufio.Reader) {
 
 	// ReadString reads until the first occurrence of delim in the input,
 	// returning a string containing the data up to and including the delimiter.
@@ -24,13 +28,14 @@ func ReadInput() {
 	// For simple uses, a Scanner may be more convenient.
 	//func (b *Reader) ReadString(delim byte) (string, error) {
 
-	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	input = strings.Replace(input, "\n", "", -1)
 
 	if strings.Compare(".exit", input) == 0 {
 		fmt.Println("Exiting....bye bye")
-	  os.Exit(SUCCESS)
+		os.Exit(SUCCESS)
+	} else {
+		fmt.Println("unrecognized command : ", input)
 	}
 
 }
