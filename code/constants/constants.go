@@ -1,0 +1,24 @@
+package constants  
+
+
+const (
+	PREPARE_SUCCESS = iota + 100
+	PREPARE_UNRECOGNIZED_STATEMENT
+)
+
+const(
+	STATEMENT_SELECT =iota +1000
+	STATEMENT_INSERT 
+)
+
+
+const (
+	EXIT_SUCCESS = 0 
+	EXIT_FAILURE 
+
+)
+const(
+	META_COMMAND_SUCCESS = iota +10
+	META_COMMAND_UNRECOGNIZED_COMMAND
+)
+
