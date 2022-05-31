@@ -1,6 +1,8 @@
 # building-a-database-in-golang
 building a simple database in golang
 
+NOTE: I am also providing the c code that i found on the internet while researching on the topic so that it can be implemented in other modern languages like rust
+
 # Introduction
 
 As a web developer, I use relational databases every day at my job, but they’re a black box to me. Some questions I have:
@@ -116,7 +118,7 @@ void close_input_buffer(InputBuffer* input_buffer) {
 
 ```
 
-# World's Simplest SQL Compiler and Virtual Machine 
+# SQL Compiler and Virtual Machine 
 
 We’re making a clone of sqlite. The “front-end” of sqlite is a SQL compiler that parses a string and outputs an internal representation called bytecode.
 
@@ -267,3 +269,59 @@ db > .exit
 ~
 
 ```
+# An In-Memory, Append-Only, Single-Table Database 
+
+For starters, we are going to start small by putting a lot of limitations on our databases. For now, it will:
+ - support two operations: insert a row and printing all rows
+ - reside only in memory ( no persistence to disk)
+ - support a single hard-coded table 
+
+ Our hard-coded table is going to store users and look like this:
+
+column	 :   type
+id	     :   integer
+username :	varchar(32)
+email	 :  varchar(255)
+
+This is a simple schema, but it gets us to support multiple data types and multiple sizes of text data types.
+
+insert statements are now going to look like this:
+```
+insert 1 cstack foo@bar.com
+
+```
+That means we need to upgrade our prepare_statement function to parse arguments
+
+```
+   if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
+     statement->type = STATEMENT_INSERT;
++    int args_assigned = sscanf(
++        input_buffer->buffer, "insert %d %s %s", &(statement->row_to_insert.id),
++        statement->row_to_insert.username, statement->row_to_insert.email);
++    if (args_assigned < 3) {
++      return PREPARE_SYNTAX_ERROR;
++    }
+     return PREPARE_SUCCESS;
+   }
+   if (strcmp(input_buffer->buffer, "select") == 0) {
+
+```
+
+We store those parsed arguments into a new Row data structure inside the statement object:
+
+```
++#define COLUMN_USERNAME_SIZE 32
++#define COLUMN_EMAIL_SIZE 255
++typedef struct {
++  uint32_t id;
++  char username[COLUMN_USERNAME_SIZE];
++  char email[COLUMN_EMAIL_SIZE];
++} Row;
++
+ typedef struct {
+   StatementType type;
++  Row row_to_insert;  // only used by insert statement
+ } Statement;
+
+```
+
