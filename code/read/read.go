@@ -54,10 +54,11 @@ func do_meta_command(input string) int {
 
 func do_sql_command(input string) (msgCode int) {
 	var statement int
-	switch execute.PrepareStatement(input, &statement) {
+	prepMsgCode,params:=execute.PrepareStatement(input, &statement)
+	switch prepMsgCode  {
 	case constants.PREPARE_SUCCESS:
 		msgCode = constants.PREPARE_SUCCESS
-		execute.ExecuteStatement(statement)
+		execute.ExecuteStatement(statement,params)
 		break
 	case constants.PREPARE_UNRECOGNIZED_STATEMENT:
 		msgCode = constants.PREPARE_UNRECOGNIZED_STATEMENT
