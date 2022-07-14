@@ -8,7 +8,7 @@ import (
 )
 
 // input string is the string after "insert" statement
-func verify_insert_operation(input string) (params []string, err error) {
+func validate_insert_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -20,7 +20,7 @@ func verify_insert_operation(input string) (params []string, err error) {
 }
 
 // input string is the string after "select" statement
-func verify_select_operation(input string) (params []string, err error) {
+func validate_select_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -32,7 +32,7 @@ func verify_select_operation(input string) (params []string, err error) {
 }
 
 // input string is the string after "delete" statement
-func verify_delete_operation(input string) (params []string, err error) {
+func validate_delete_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -44,7 +44,7 @@ func verify_delete_operation(input string) (params []string, err error) {
 }
 
 // input string is the string after "update" statement
-func verify_update_operation(input string) (params []string, err error) {
+func validate_update_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -56,7 +56,7 @@ func verify_update_operation(input string) (params []string, err error) {
 }
 
 // input string is the string after "update" statement
-func verify_create_operation(input string) (params []string, err error) {
+func validate_create_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -65,25 +65,36 @@ func verify_create_operation(input string) (params []string, err error) {
 	params = strings.Split(input, " ")
 
 	return
+}
+
+func databaseNotSelected()bool{
+	return false //for now
 }
 
 
 func validateStatement(input string, statementType int) (params []string, err error) {
+	// figure out a way to find out whether  the database is selected or not
+	if databaseNotSelected() {
+		err = errors.New("No Database Selected")
+		return
+	}
 
 	switch statementType {
 	case constants.STATEMENT_SELECT:
-		params, err = verify_select_operation(input)
+		params, err = validate_select_operation(input)
 		break
 	case constants.STATEMENT_INSERT:
-		params, err = verify_insert_operation(input)
+		params, err = validate_insert_operation(input)
 		break
 	case constants.STATEMENT_DELETE:
-		params, err = verify_delete_operation(input)
+		params, err = validate_delete_operation(input)
+		break
 	case constants.STATEMENT_UPDATE:
-		params, err = verify_update_operation(input)
+		params, err = validate_update_operation(input)
+		break
 	case constants.STATEMENT_CREATE:
-		params, err = verify_create_operation(input)
-
+		params, err = validate_create_operation(input)
+		break
 	}
 	return
 
