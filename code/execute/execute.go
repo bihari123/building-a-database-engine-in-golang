@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/bihari123/building-a-database-in-golang/constants"
-	dbutils "github.com/bihari123/building-a-database-in-golang/db_utils"
 )
 
 func PrepareStatement(input string, statementType *int) (msgCode int, params []string) {
@@ -24,8 +23,8 @@ func PrepareStatement(input string, statementType *int) (msgCode int, params []s
 		msgCode = constants.PREPARE_UNRECOGNIZED_STATEMENT
 		return msgCode, []string{}
 	}
-
-	params, err := perform_operation(input[6:], *statementType)
+// verify whether the statement is valid. Ex. if it contains the right number of params or not
+	params, err := validateStatement(input[6:], *statementType)
 	if err != nil {
 		msgCode = constants.PREPARE_SYNTAX_ERROR
 		return msgCode, []string{}
@@ -39,7 +38,6 @@ func ExecuteStatement(statementType int,params []string) {
 	switch statementType {
 	case constants.STATEMENT_INSERT:
 		fmt.Println("this is where we will do an insert")
-		dbutils.InsertRow()
 		break
 	case constants.STATEMENT_SELECT:
 		fmt.Println("this is where we will do a select")

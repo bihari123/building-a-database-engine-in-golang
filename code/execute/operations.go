@@ -8,7 +8,7 @@ import (
 )
 
 // input string is the string after "insert" statement
-func insert_operation(input string) (params []string, err error) {
+func verify_insert_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -20,7 +20,7 @@ func insert_operation(input string) (params []string, err error) {
 }
 
 // input string is the string after "select" statement
-func select_operation(input string) (params []string, err error) {
+func verify_select_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -32,7 +32,7 @@ func select_operation(input string) (params []string, err error) {
 }
 
 // input string is the string after "delete" statement
-func delete_operation(input string) (params []string, err error) {
+func verify_delete_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -44,7 +44,7 @@ func delete_operation(input string) (params []string, err error) {
 }
 
 // input string is the string after "update" statement
-func update_operation(input string) (params []string, err error) {
+func verify_update_operation(input string) (params []string, err error) {
 
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
@@ -55,21 +55,36 @@ func update_operation(input string) (params []string, err error) {
 	return
 }
 
-func perform_operation(input string, statementType int) (params []string, err error) {
+// input string is the string after "update" statement
+func verify_create_operation(input string) (params []string, err error) {
+
+	if len(input) == 0 {
+		err = errors.New("parameters are empty")
+		return
+	}
+	params = strings.Split(input, " ")
+
+	return
+}
+
+
+func validateStatement(input string, statementType int) (params []string, err error) {
 
 	switch statementType {
 	case constants.STATEMENT_SELECT:
-		params, err = select_operation(input)
+		params, err = verify_select_operation(input)
 		break
 	case constants.STATEMENT_INSERT:
-		params, err = insert_operation(input)
+		params, err = verify_insert_operation(input)
 		break
 	case constants.STATEMENT_DELETE:
-		params, err = delete_operation(input)
+		params, err = verify_delete_operation(input)
 	case constants.STATEMENT_UPDATE:
-		params, err = update_operation(input)
+		params, err = verify_update_operation(input)
+	case constants.STATEMENT_CREATE:
+		params, err = verify_create_operation(input)
+
 	}
-return
+	return
 
 }
-
