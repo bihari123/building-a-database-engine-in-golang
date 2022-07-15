@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/bihari123/building-a-database-in-golang/constants"
+	dbutils "github.com/bihari123/building-a-database-in-golang/db_utils"
 	"github.com/bihari123/building-a-database-in-golang/utils/loghelper"
 )
 
@@ -33,7 +34,7 @@ func PrepareStatement(input string, statementType *int) (msgCode int, params []s
 		return msgCode, []string{}
 	}
 	// verify whether the statement is valid. Ex. if it contains the right number of params or not
-	params, err := validateStatement(inputParams, *statementType)
+	params, err := validateStatement(inputParams, statementType)
 	if err != nil {
 		loghelper.LogError(fmt.Sprintf("error validating the statement: %v\n\n", err))
 		msgCode = constants.PREPARE_SYNTAX_ERROR
@@ -44,7 +45,7 @@ func PrepareStatement(input string, statementType *int) (msgCode int, params []s
 	return msgCode, params
 }
 
-func ExecuteStatement(statementType int, params []string) {
+func ExecuteStatement(statementType int, params []string) (err error) {
 	switch statementType {
 	case constants.STATEMENT_INSERT:
 		fmt.Println("this is where we will do an insert")
@@ -61,8 +62,13 @@ func ExecuteStatement(statementType int, params []string) {
 	case constants.STATEMENT_CREATE:
 		fmt.Println("this is where we will do a create")
 		break
+	case constants.STATEMENT_CREATE_DB:
+		fmt.Println("this is where we will do a createDB")
+		err = dbutils.CreateDB(params[1])
+		break
 	case constants.STATEMENT_USE:
 		fmt.Println("this is where we will do a use")
 		break
 	}
+	return
 }

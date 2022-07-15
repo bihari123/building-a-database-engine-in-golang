@@ -28,7 +28,7 @@ func ReadInput(reader *bufio.Reader) {
 	if input[0] == '.' {
 		msgCode = do_meta_command(input)
 	} else {
-		msgCode=do_sql_command(input)
+		msgCode = do_sql_command(input)
 	}
 	fmt.Println("The statement executed, messageCode: ", msgCode)
 }
@@ -54,15 +54,21 @@ func do_meta_command(input string) int {
 
 func do_sql_command(input string) (msgCode int) {
 	var statement int
-	prepMsgCode,params:=execute.PrepareStatement(input, &statement)
-	switch prepMsgCode  {
+	prepMsgCode, params := execute.PrepareStatement(input, &statement)
+	switch prepMsgCode {
 	case constants.PREPARE_SUCCESS:
 		msgCode = constants.PREPARE_SUCCESS
-		execute.ExecuteStatement(statement,params)
+		execute.ExecuteStatement(statement, params)
+		break
+	case constants.PREPARE_SYNTAX_ERROR:
+		msgCode = constants.PREPARE_SYNTAX_ERROR
+		fmt.Printf("\nSyntax Error In %v\n", input)
 		break
 	case constants.PREPARE_UNRECOGNIZED_STATEMENT:
 		msgCode = constants.PREPARE_UNRECOGNIZED_STATEMENT
 		fmt.Printf("unrecognized keyword at the start of %s. \n", input)
+		break
 	}
+
 	return
 }

@@ -89,22 +89,33 @@ func DatabaseNotSelected() bool {
 	return true
 }
 
-func CheckDatabase(dbName string) (err error) {
+func CheckDatabase(dbName string, creatingNewDB bool) (err error) {
 
 	home, _ := os.UserHomeDir()
 
 	pathToDBEngineFiles := filepath.Join(home, "VectorDB")
 
-	if len(PathToDB) > 0 {
-		loghelper.LogInfo("Changing DB")
-	}
-	PathToDB = filepath.Join(pathToDBEngineFiles, dbName)
+	if creatingNewDB {
+		
+		newDB := filepath.Join(pathToDBEngineFiles, dbName)
+		if exists(newDB) {
+			err = errors.New(fmt.Sprintf("Database %v already exists", dbName))
+			return
+		}
 
-	if !exists(PathToDB) {
-		err = errors.New(fmt.Sprintf("Database %v not present", dbName))
-		return
+	} else { // switching the db in use
+		if len(PathToDB) > 0  {
+			loghelper.LogInfo("Changing DB")
+		}
+		PathToDB = filepath.Join(pathToDBEngineFiles, dbName)
+
+		if !exists(PathToDB) {
+			err = errors.New(fmt.Sprintf("Database %v not present", dbName))
+			return
+		}
+		loghelper.LogInfo("DB changed to ", dbName)
+
 	}
-	loghelper.LogInfo("DB changed to ", dbName)
 
 	return
 }
