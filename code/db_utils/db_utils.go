@@ -1,6 +1,14 @@
 package dbutils
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"log"
+	"os"
+	"path/filepath"
+
+	"github.com/bihari123/building-a-database-in-golang/utils/loghelper"
+)
 
 type Row struct {
 	Id       uint
@@ -23,8 +31,8 @@ type Page struct {
 	Rows []Row
 }
 
-type Schema struct{
-	Tables []Table 
+type Schema struct {
+	Tables []Table
 }
 
 func RowSlot(table *Table, rowNum uint) {
@@ -72,3 +80,46 @@ func SelectAllFromTable(table Table) {
 	fmt.Printf("\n\nTable: %+v\n\n", table)
 }
 
+func DatabaseNotSelected() bool {
+
+	if len(PathToDB) > 0 {
+		return false
+	}
+
+	return true
+}
+
+func CheckDatabase(dbName string) (err error) {
+
+	home, _ := os.UserHomeDir()
+
+	pathToDBEngineFiles := filepath.Join(home, "VectorDB")
+
+	if len(PathToDB) > 0 {
+		loghelper.LogInfo("Changing DB")
+	}
+	PathToDB = filepath.Join(pathToDBEngineFiles, dbName)
+
+	if !exists(PathToDB) {
+		err = errors.New(fmt.Sprintf("Database %v not present", dbName))
+		return
+	}
+	loghelper.LogInfo("DB changed to ", dbName)
+
+	return
+}
+
+// exists returns whether the given file or directory exists
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	} else {
+		log.Fatal("some error happened at checking the existence of the directory ", err)
+	}
+
+	return false
+}

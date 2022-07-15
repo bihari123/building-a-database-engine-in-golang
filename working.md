@@ -65,12 +65,12 @@ func do_sql_command(input string) (msgCode int) {
 
 ```
 
-Here we have two types of commands:- 
+Here we have **two types of commands**:- 
  - Meta_Command: for operations like exit,user_login etc.
  - Sql_Command: for operations using sql query.
 
 
-Meta_Commands are executed as follows:
+**Meta_Commands** are executed as follows:
 
 ```
 
@@ -95,7 +95,7 @@ func do_meta_command(input string) int {
 
 ```
 
-The Sql_Commands are executed as follows:
+The **Sql_Commands** are executed as follows:
 ```
 func do_sql_command(input string) (msgCode int) {
 	var statement int
@@ -113,30 +113,39 @@ func do_sql_command(input string) (msgCode int) {
 }
 
 ```
-Here, we first prepare the statement and then execute it upon getting the success_code PREPARE_SUCCESS.
+Here, we first prepare the statement and then execute it upon getting the success_code **PREPARE_SUCCESS**.
 
-PrepareStatement is responsible for verifying whether the statement that we are going to execute is valid or not. It sends the prepMsgCode and params. prepMsgCode can have two values: constants.PREPARE_SUCCESS or constants.PREPARE_UNRECOGNIZED_STATEMENT.
+**PrepareStatement** is responsible for verifying whether the statement that we are going to execute is valid or not. It sends the prepMsgCode and params. **prepMsgCode** can have two values: **constants.PREPARE_SUCCESS** or **constants.PREPARE_UNRECOGNIZED_STATEMENT**.
 
 ```
 func PrepareStatement(input string, statementType *int) (msgCode int, params []string) {
-
+	var inputParams string
 	if strings.Compare("insert", input[:6]) == 0 {
 		*statementType = constants.STATEMENT_INSERT
+		inputParams = input[6:]
 	} else if strings.Compare("select", input[:6]) == 0 {
 		*statementType = constants.STATEMENT_SELECT
+		inputParams = input[6:]
 	} else if strings.Compare("delete", input[:6]) == 0 {
 		*statementType = constants.STATEMENT_DELETE
+		inputParams = input[6:]
 	} else if strings.Compare("update", input[:6]) == 0 {
 		*statementType = constants.STATEMENT_UPDATE
+		inputParams = input[6:]
 	} else if strings.Compare("create", input[:6]) == 0 {
 		*statementType = constants.STATEMENT_CREATE
+		inputParams = input[6:]
+	} else if strings.Compare("use", input[:3]) == 0 {
+		*statementType = constants.STATEMENT_USE
+		inputParams = input[3:]
 	} else {
 		msgCode = constants.PREPARE_UNRECOGNIZED_STATEMENT
 		return msgCode, []string{}
 	}
-
-	params, err := perform_operation(input[6:], *statementType)
+	// verify whether the statement is valid. Ex. if it contains the right number of params or not
+	params, err := validateStatement(inputParams, *statementType)
 	if err != nil {
+		loghelper.LogError(fmt.Sprintf("error validating the statement: %v\n\n", err))
 		msgCode = constants.PREPARE_SYNTAX_ERROR
 		return msgCode, []string{}
 	}
@@ -146,3 +155,123 @@ func PrepareStatement(input string, statementType *int) (msgCode int, params []s
 }
 
 ```
+
+**validateStatement** func is used to validate the syntax of the query. We have handled various types statements in this. But first of all we verify whether we have defined the database to use or not. Also, if the database is defined, is it present in the dbEngine?
+
+
+```
+
+func validateStatement(input string, statementType int) (params []string, err error) {
+	// figure out a way to find out whether  the database is selected or not
+	if dbutils.DatabaseNotSelected() && statementType != constants.STATEMENT_USE {
+		err = errors.New("No Database Selected")
+		return
+	}
+
+	switch statementType {
+	case constants.STATEMENT_SELECT:
+		params, err = validate_select_operation(input)
+		break
+	case constants.STATEMENT_INSERT:
+		params, err = validate_insert_operation(input)
+		break
+	case constants.STATEMENT_DELETE:
+		params, err = validate_delete_operation(input)
+		break
+	case constants.STATEMENT_UPDATE:
+		params, err = validate_update_operation(input)
+		break
+	case constants.STATEMENT_CREATE:
+		params, err = validate_create_operation(input)
+		break
+	case constants.STATEMENT_USE:
+		params, err = validate_use_operation(input)
+		break
+	}
+	return
+
+}
+
+```
+
+The methods for verifying the database are as follows:-
+
+```
+func DatabaseNotSelected() bool {
+
+	if len(PathToDB) > 0 {
+		return false
+	}
+
+	return true
+}
+
+func CheckDatabase(dbName string) (err error) {
+
+	home, _ := os.UserHomeDir()
+
+	pathToDBEngineFiles := filepath.Join(home, "VectorDB")
+
+	if len(PathToDB) > 0 {
+		loghelper.LogInfo("Changing DB")
+	}
+	
+	// Global variable that holds the path to the database files (file structure)
+
+	PathToDB = filepath.Join(pathToDBEngineFiles, dbName)
+
+	if !exists(PathToDB) {
+		err = errors.New(fmt.Sprintf("Database %v not present", dbName))
+		return
+	}
+	loghelper.LogInfo("DB changed to ", dbName)
+
+	return
+}
+
+// exists returns whether the given file or directory exists
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	} else {
+		log.Fatal("some error happened at checking the existence of the directory ", err)
+	}
+
+	return false
+}
+
+```
+
+Once we ensure that the database exists, we validate the **"use"** statement 
+```
+// input string is the string after "use" statement
+func validate_use_operation(input string) (params []string, err error) {
+
+	if len(input) == 0 {
+		err = errors.New("parameters are empty")
+		return
+	}
+	// input[1:] eliminates the space
+	params = strings.Split(input[1:], " ")
+
+	if len(params) > 1 {
+		errMsg := fmt.Sprintf("syntax error at the end of : use %v", input)
+		err = errors.New(errMsg)
+		loghelper.LogError(errMsg)
+		return
+	}
+
+	if err = dbutils.CheckDatabase(params[0]); err != nil {
+		loghelper.LogError(err.Error())
+		return
+	}
+
+	return
+}
+
+```
+

@@ -1,5 +1,4 @@
-package constants  
-
+package constants
 
 const (
 	PREPARE_SUCCESS = iota + 100
@@ -7,22 +6,20 @@ const (
 	PREPARE_SYNTAX_ERROR
 )
 
-const(
-	STATEMENT_SELECT =iota +1000
+const (
+	STATEMENT_SELECT = iota + 1000
 	STATEMENT_INSERT
 	STATEMENT_DELETE
 	STATEMENT_UPDATE
-  STATEMENT_CREATE
+	STATEMENT_CREATE
+	STATEMENT_USE // for selecting database
 )
-
 
 const (
-	EXIT_SUCCESS = iota 
-	EXIT_FAILURE 
-
+	EXIT_SUCCESS = iota
+	EXIT_FAILURE
 )
-const(
-	META_COMMAND_SUCCESS = iota +10
+const (
+	META_COMMAND_SUCCESS = iota + 10
 	META_COMMAND_UNRECOGNIZED_COMMAND
 )
-
