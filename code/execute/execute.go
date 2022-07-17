@@ -73,7 +73,6 @@ func ExecuteStatement(statementType int, params []string) (err error) {
 		fmt.Println("this is where we will do a use")
 		break
 	case constants.STATEMENT_DROP_DB:
-		fmt.Println("this is where we will do a createDB")
 		err = dbutils.DropDB(params[1])
 		break
 

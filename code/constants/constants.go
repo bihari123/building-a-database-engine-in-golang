@@ -28,3 +28,9 @@ const (
 	META_COMMAND_SUCCESS = iota + 10
 	META_COMMAND_UNRECOGNIZED_COMMAND
 )
+
+const (
+	INT = iota + 50
+	FLOAT
+	STRING
+)

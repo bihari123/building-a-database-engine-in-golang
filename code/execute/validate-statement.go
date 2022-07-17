@@ -76,18 +76,40 @@ func validate_create_operation(input string, statementType *int) (params []strin
 			errMsg = fmt.Sprintf("Error in the number of params: %v", params)
 			loghelper.LogError(errMsg)
 			err = errors.New(errMsg)
+			return
 		}
 		*statementType = constants.STATEMENT_CREATE_DB
 	case "table":
-		loghelper.LogInfo("Need to figure this out")
 		if dbutils.DatabaseNotSelected() {
 			errMsg = fmt.Sprint("Database not selected")
+			loghelper.LogError(errMsg)
+			err = errors.New(errMsg)
+			return 
 		}
-		// if dbutils.TableNotPresentInDB(){
-		// 	errMsg+=fmt.Sprintf("Table: %v not present in Database: %v",table,database)
-		// }
+
+		tableName := params[1]
+		if len(params) < 6 {
+			errMsg = fmt.Sprintf("Error in the number of params: %v", params)
+			loghelper.LogError(errMsg)
+			err = errors.New(errMsg)
+			return 
+		}
+		if params[2] != "(" || params[len(params)-1] != ")" {
+			errMsg = fmt.Sprintf("Syntax error near: %v\n", input)
+			loghelper.LogError(errMsg)
+			err = errors.New(errMsg)
+			return 
+		}
+
+		loghelper.LogInfo(fmt.Sprintf("Table: %v", tableName))
+
+		
 
 		*statementType = constants.STATEMENT_CREATE_TABLE
+	default:
+		errMsg = fmt.Sprintf("Unrecognized Keyword %s", params[0])
+		loghelper.LogError(errMsg)
+		err = errors.New(errMsg)
 	}
 
 	return

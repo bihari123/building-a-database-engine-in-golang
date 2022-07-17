@@ -10,30 +10,6 @@ import (
 	"github.com/bihari123/building-a-database-in-golang/utils/loghelper"
 )
 
-type Row struct {
-	Id       uint
-	UserName string
-	Email    string
-}
-
-type Statement struct {
-	Type        int
-	RowToInsert Row
-}
-
-type Table struct {
-	TableName string
-	NumRows   uint
-	Pages     []Page
-}
-
-type Page struct {
-	Rows []Row
-}
-
-type Schema struct {
-	Tables []Table
-}
 
 func RowSlot(table *Table, rowNum uint) {
 	pageNum := rowNum / table.NumRows
