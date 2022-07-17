@@ -10,7 +10,6 @@ import (
 	"github.com/bihari123/building-a-database-in-golang/utils/loghelper"
 )
 
-
 func RowSlot(table *Table, rowNum uint) {
 	pageNum := rowNum / table.NumRows
 	var page *Page
@@ -37,7 +36,7 @@ func SerializeRows(table Table) (result []Row) {
 
 	return
 }
-func CreateTable(tableName string, numRows uint) Table {
+func NewTable(tableName string, numRows uint) Table {
 	table := Table{
 		TableName: tableName,
 		NumRows:   numRows,
@@ -72,7 +71,7 @@ func CheckDatabase(dbName string, creatingNewDB bool) (err error) {
 	pathToDBEngineFiles := filepath.Join(home, "VectorDB")
 
 	if creatingNewDB {
-		
+
 		newDB := filepath.Join(pathToDBEngineFiles, dbName)
 		if exists(newDB) {
 			err = errors.New(fmt.Sprintf("Database %v already exists", dbName))
@@ -80,7 +79,7 @@ func CheckDatabase(dbName string, creatingNewDB bool) (err error) {
 		}
 
 	} else { // switching the db in use
-		if len(PathToDB) > 0  {
+		if len(PathToDB) > 0 {
 			loghelper.LogInfo("Changing DB")
 		}
 		PathToDB = filepath.Join(pathToDBEngineFiles, dbName)
@@ -91,6 +90,18 @@ func CheckDatabase(dbName string, creatingNewDB bool) (err error) {
 		}
 		loghelper.LogInfo("DB changed to ", dbName)
 
+	}
+
+	return
+}
+
+func CheckTable(pathToDB, tableName string) (err error) {
+
+	pathToTable := filepath.Join(pathToDB, tableName)
+	loghelper.LogInfo("PathToTable: %v", pathToTable)
+	if exists(pathToTable) {
+		err = errors.New(fmt.Sprintf("Table %v already exists", tableName))
+		return
 	}
 
 	return

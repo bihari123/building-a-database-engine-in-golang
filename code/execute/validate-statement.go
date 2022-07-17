@@ -79,33 +79,33 @@ func validate_create_operation(input string, statementType *int) (params []strin
 			return
 		}
 		*statementType = constants.STATEMENT_CREATE_DB
+	
 	case "table":
 		if dbutils.DatabaseNotSelected() {
 			errMsg = fmt.Sprint("Database not selected")
 			loghelper.LogError(errMsg)
 			err = errors.New(errMsg)
-			return 
+			return
 		}
 
-		tableName := params[1]
-		if len(params) < 6 {
-			errMsg = fmt.Sprintf("Error in the number of params: %v", params)
-			loghelper.LogError(errMsg)
-			err = errors.New(errMsg)
-			return 
-		}
+		// tableName := params[1]
+
 		if params[2] != "(" || params[len(params)-1] != ")" {
 			errMsg = fmt.Sprintf("Syntax error near: %v\n", input)
 			loghelper.LogError(errMsg)
 			err = errors.New(errMsg)
-			return 
+			return
 		}
 
-		loghelper.LogInfo(fmt.Sprintf("Table: %v", tableName))
-
-		
+		if len(params) < 6 {
+			errMsg = fmt.Sprintf("Error in the number of params: %v", params)
+			loghelper.LogError(errMsg)
+			err = errors.New(errMsg)
+			return
+		}
 
 		*statementType = constants.STATEMENT_CREATE_TABLE
+	
 	default:
 		errMsg = fmt.Sprintf("Unrecognized Keyword %s", params[0])
 		loghelper.LogError(errMsg)

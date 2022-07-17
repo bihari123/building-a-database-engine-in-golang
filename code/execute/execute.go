@@ -29,10 +29,10 @@ func PrepareStatement(input string, statementType *int) (msgCode int, params []s
 	} else if strings.Compare("use", input[:3]) == 0 {
 		*statementType = constants.STATEMENT_USE
 		inputParams = input[3:]
-	}else if strings.Compare("drop",input[:4])==0{
-    *statementType =constants.STATEMENT_DROP 
-    inputParams=input[4:]
-	}	else {
+	} else if strings.Compare("drop", input[:4]) == 0 {
+		*statementType = constants.STATEMENT_DROP
+		inputParams = input[4:]
+	} else {
 		msgCode = constants.PREPARE_UNRECOGNIZED_STATEMENT
 		return msgCode, []string{}
 	}
@@ -68,6 +68,10 @@ func ExecuteStatement(statementType int, params []string) (err error) {
 	case constants.STATEMENT_CREATE_DB:
 		fmt.Println("this is where we will do a createDB")
 		err = dbutils.CreateDB(params[1])
+		break
+	case constants.STATEMENT_CREATE_TABLE:
+		fmt.Println("this is where we will do a createTable")
+		err = dbutils.CreateTable(dbutils.PathToDB, params)
 		break
 	case constants.STATEMENT_USE:
 		fmt.Println("this is where we will do a use")

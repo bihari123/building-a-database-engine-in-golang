@@ -28,7 +28,9 @@ type Statement struct {
 type Table struct {
 	TableName string
 	NumRows   uint
-	Pages     []Page
+	Rows      []Row
+	// will use pages in teh later section of the dev
+	Pages []Page
 }
 
 type Page struct {
