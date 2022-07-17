@@ -61,6 +61,8 @@ func validate_update_operation(input string) (params []string, err error) {
 // input string is the string after "update" statement
 func validate_create_operation(input string, statementType *int) (params []string, err error) {
 
+	var errMsg string
+
 	if len(input) == 0 {
 		err = errors.New("parameters are empty")
 		return
@@ -71,13 +73,20 @@ func validate_create_operation(input string, statementType *int) (params []strin
 	//create database DBNAME
 	case "database":
 		if len(params) > 2 {
-			errMsg := fmt.Sprintf("Error in the number of params: %v", params)
+			errMsg = fmt.Sprintf("Error in the number of params: %v", params)
 			loghelper.LogError(errMsg)
 			err = errors.New(errMsg)
 		}
 		*statementType = constants.STATEMENT_CREATE_DB
 	case "table":
 		loghelper.LogInfo("Need to figure this out")
+		if dbutils.DatabaseNotSelected() {
+			errMsg = fmt.Sprint("Database not selected")
+		}
+		// if dbutils.TableNotPresentInDB(){
+		// 	errMsg+=fmt.Sprintf("Table: %v not present in Database: %v",table,database)
+		// }
+
 		*statementType = constants.STATEMENT_CREATE_TABLE
 	}
 
@@ -109,9 +118,43 @@ func validate_use_operation(input string) (params []string, err error) {
 	return
 }
 
+// input string is the string after "drop" statement
+func validate_drop_operation(input string, statementType *int) (params []string, err error) {
+	var errMsg string
+	if len(input) == 0 {
+		err = errors.New("parameters are empty")
+		return
+	}
+	params = strings.Split(strings.TrimSpace(input), " ")
+
+	switch params[0] {
+	//create database DBNAME
+	case "database":
+		if len(params) > 2 {
+			errMsg = fmt.Sprintf("Error in the number of params: %v", params)
+			loghelper.LogError(errMsg)
+			err = errors.New(errMsg)
+		}
+		*statementType = constants.STATEMENT_DROP_DB
+	case "table":
+		loghelper.LogInfo("Need to figure this out")
+
+		if dbutils.DatabaseNotSelected() {
+			errMsg = fmt.Sprint("Database not selected")
+		}
+		// if dbutils.TableNotPresentInDB(){
+		// 	errMsg+=fmt.Sprintf("Table: %v not present in Database: %v",table,database)
+		// }
+
+		*statementType = constants.STATEMENT_DROP_TABLE
+	}
+
+	return
+}
+
 func validateStatement(input string, statementType *int) (params []string, err error) {
 	// figure out a way to find out whether  the database is selected or not
-	if dbutils.DatabaseNotSelected() && *statementType != constants.STATEMENT_USE && *statementType != constants.STATEMENT_CREATE {
+	if dbutils.DatabaseNotSelected() && *statementType != constants.STATEMENT_USE && *statementType != constants.STATEMENT_CREATE && *statementType != constants.STATEMENT_DROP {
 		err = errors.New("No Database Selected")
 		return
 	}
@@ -135,6 +178,10 @@ func validateStatement(input string, statementType *int) (params []string, err e
 	case constants.STATEMENT_USE:
 		params, err = validate_use_operation(input)
 		break
+	case constants.STATEMENT_DROP:
+		params, err = validate_drop_operation(input, statementType)
+		break
+
 	}
 	return
 

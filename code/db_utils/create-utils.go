@@ -26,3 +26,22 @@ func CreateDB(dbName string) (err error) {
 	loghelper.LogInfo(fmt.Sprintf("Database %v created", dbName))
 	return
 }
+func DropDB(dbName string) (err error) {
+
+	if err = CheckDatabase(dbName, false); err != nil {
+		loghelper.LogError(err.Error())
+		return
+	}
+
+	home, _ := os.UserHomeDir()
+	pathToDBEngineFiles := filepath.Join(home, "VectorDB")
+	newDB := filepath.Join(pathToDBEngineFiles, dbName)
+
+	if err = os.RemoveAll(newDB); err != nil {
+		loghelper.LogError(err.Error())
+		return
+	}
+	loghelper.LogInfo(fmt.Sprintf("Database %v deleted", dbName))
+	return
+}
+
