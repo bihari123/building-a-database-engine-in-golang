@@ -47,10 +47,9 @@ func CreateTable(pathToDB string, param []string) (err error) {
 	}
 
 	pathToTable := filepath.Join(pathToDB, param[1]+".csv")
-
 	var tableFile *os.File
 
-	if tableFile, err = os.OpenFile(pathToTable, os.O_CREATE, os.ModePerm); err != nil {
+	if tableFile, err = os.OpenFile(pathToTable, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0660); err != nil {
 		loghelper.LogError(err.Error())
 		return
 	}
@@ -91,7 +90,12 @@ func CreateTable(pathToDB string, param []string) (err error) {
 		if err := w.Write(record); err != nil {
 			log.Fatal("error writing record to file", err)
 		}
+
+		fmt.Printf("written %v to file", record)
 	}
+
+	w.Flush()
+	tableFile.Close()
 
 	return
 }
